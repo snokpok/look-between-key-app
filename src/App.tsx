@@ -1,7 +1,6 @@
 import {
   ChangeEventHandler,
   MouseEventHandler,
-  ReactEventHandler,
   useEffect,
   useState,
 } from "react";

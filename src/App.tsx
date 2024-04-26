@@ -78,11 +78,11 @@ function App() {
     };
 
   const onSelectTo =
-    (keysIndex: number): ChangeEventHandler<HTMLSelectElement> =>
+    (index: number): ChangeEventHandler<HTMLSelectElement> =>
     (e) => {
       setBetweenChoices((prev) => {
         const newChoices = [...prev];
-        newChoices[keysIndex].to = e.target.value;
+        newChoices[index].to = e.target.value;
         return newChoices;
       });
     };
@@ -90,6 +90,42 @@ function App() {
   const onClickAdd: MouseEventHandler<HTMLButtonElement> = () => {
     setBetweenChoices((prev) => [...prev, { from: undefined, to: undefined }]);
   };
+
+  const onClickMoveDown =
+    (index: number): MouseEventHandler<HTMLButtonElement> =>
+    () => {
+      if (index === betweenChoices.length - 1) {
+        return;
+      }
+      setBetweenChoices((prev) => {
+        const newChoices = [...prev];
+        const below = prev[index + 1];
+        newChoices[index + 1] = newChoices[index];
+        newChoices[index] = below;
+        return newChoices;
+      });
+    };
+
+  const onClickMoveTop =
+    (index: number): MouseEventHandler<HTMLButtonElement> =>
+    () => {
+      if (index === 0) {
+        return;
+      }
+      setBetweenChoices((prev) => {
+        const newChoices = [...prev];
+        const above = prev[index - 1];
+        newChoices[index - 1] = newChoices[index];
+        newChoices[index] = above;
+        return newChoices;
+      });
+    };
+
+  const onClickDel =
+    (index: number): MouseEventHandler<HTMLButtonElement> =>
+    () => {
+      setBetweenChoices((prev) => prev.filter((_, i) => index !== i));
+    };
 
   useEffect(() => {
     const values = betweenChoices
@@ -107,28 +143,37 @@ function App() {
       <div style={{ display: "flex", flexDirection: "column" }}>
         {betweenChoices.map((choice, i) => {
           return (
-            <p key={`key-${i}`} style={{ lineHeight: 0 }}>
-              <span>Look between your </span>
-              <select
-                key={`from-key-${i}-${choice.from}`}
-                value={choice.from}
-                onChange={onSelectFrom(i)}
-              >
-                {getFromOptions().map((opt) => {
-                  return <option value={opt}>{opt}</option>;
-                })}
-              </select>
-              <span>and </span>
-              <select
-                key={`to-key-${i}-${choice.to}`}
-                value={choice.to}
-                onChange={onSelectTo(i)}
-              >
-                {getToOptions(choice.from).map((opt) => {
-                  return <option value={opt}>{opt}</option>;
-                })}
-              </select>
-            </p>
+            <div
+              style={{ display: "inline-flex", alignItems: "center", gap: 10 }}
+            >
+              <p key={`key-${i}`} style={{ lineHeight: 0 }}>
+                <span>Look between your </span>
+                <select
+                  key={`from-key-${i}-${choice.from}`}
+                  value={choice.from}
+                  onChange={onSelectFrom(i)}
+                >
+                  {getFromOptions().map((opt) => {
+                    return <option value={opt}>{opt}</option>;
+                  })}
+                </select>
+                <span>and </span>
+                <select
+                  key={`to-key-${i}-${choice.to}`}
+                  value={choice.to}
+                  onChange={onSelectTo(i)}
+                >
+                  {getToOptions(choice.from).map((opt) => {
+                    return <option value={opt}>{opt}</option>;
+                  })}
+                </select>
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                <button onClick={onClickMoveTop(i)}>^</button>
+                <button onClick={onClickMoveDown(i)}>v</button>
+              </div>
+              <button onClick={onClickDel(i)}>Del</button>
+            </div>
           );
         })}
       </div>
